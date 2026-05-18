@@ -1,30 +1,35 @@
 package guru.qa.niffler.config;
 
-enum LocalConfig implements Config {
+ enum LocalConfig implements Config {
   INSTANCE;
 
   @Override
   public String frontUrl() {
-    return "http://localhost:3000";
+   return "http://localhost:3000/";
   }
 
   @Override
   public String spendUrl() {
-    return "http://localhost:8093";
+   return "http://localhost:8093/";
   }
 
   @Override
   public String spendJdbcUrl() {
-    return "jdbc:postgresql://localhost:5432/niffler-spend";
+   return "jdbc:postgresql://localhost:5432/niffler-spend";
   }
 
   @Override
-  public String dbUsername() {
-    return "postgres";
+  public String githubUrl() {
+   return "https://api.github.com/";
   }
 
-  @Override
-  public String dbPassword() {
-    return "secret";
-  }
-}
+   @Override
+   public String dbUsername() {
+     return "postgres";
+   }
+
+   @Override
+   public String dbPassword() {
+     return "secret";
+   }
+ }

@@ -12,6 +12,8 @@ public interface Config {
 
   String spendJdbcUrl();
 
+  String githubUrl();
+
   String dbUsername();
 
   String dbPassword();
