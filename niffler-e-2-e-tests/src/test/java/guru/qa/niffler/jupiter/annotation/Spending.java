@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 public @interface Spending {
   String username();
   String category();
-  String description();
+  String[] description() default {};
   double amount();
   CurrencyValues currency() default CurrencyValues.RUB;
 }

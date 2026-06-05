@@ -82,10 +82,12 @@ public class UsersQueueExtension implements
         context.getUniqueId(),
         StaticUser.class
     );
-    if (user.empty()) {
-      EMPTY_USERS.add(user);
-    } else {
-      NOT_EMPTY_USERS.add(user);
+    if (user != null) {
+      if (user.empty()) {
+        EMPTY_USERS.add(user);
+      } else {
+        NOT_EMPTY_USERS.add(user);
+      }
     }
   }
 

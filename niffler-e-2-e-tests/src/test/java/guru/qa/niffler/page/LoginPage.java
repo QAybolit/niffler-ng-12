@@ -1,6 +1,7 @@
 package guru.qa.niffler.page;
 
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Selenide.$;
 
@@ -12,6 +13,7 @@ public class LoginPage {
   private final SelenideElement passwordInput = $("#password");
   private final SelenideElement submitBtn = $("#login-button");
 
+  @Step("do login")
   public MainPage login(String username, String password) {
     usernameInput.setValue(username);
     passwordInput.setValue(password);
