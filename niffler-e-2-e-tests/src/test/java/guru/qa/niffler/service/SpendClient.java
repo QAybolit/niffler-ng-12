@@ -6,9 +6,12 @@ import guru.qa.niffler.model.SpendJson;
 import java.util.Optional;
 
 public interface SpendClient {
-  SpendJson createSpending(SpendJson spending);
+
+  SpendJson createSpend(SpendJson spend);
 
   CategoryJson createCategory(CategoryJson category);
 
-  Optional<CategoryJson> findByUsernameAndName(String username, String category);
+  CategoryJson updateCategory(CategoryJson category);
+
+  Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName, String username);
 }

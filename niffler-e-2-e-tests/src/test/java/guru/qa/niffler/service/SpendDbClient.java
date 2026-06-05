@@ -19,7 +19,7 @@ public class SpendDbClient implements SpendClient {
   private static final Config CFG = Config.getInstance();
 
   @Override
-  public SpendJson createSpending(SpendJson spending) {
+  public SpendJson createSpend(SpendJson spending) {
     final JdbcTemplate jdbcTemplate = new JdbcTemplate(
         new SingleConnectionDataSource(
             CFG.spendJdbcUrl(),
@@ -29,9 +29,9 @@ public class SpendDbClient implements SpendClient {
         )
     );
 
-    final CategoryJson category = findByUsernameAndName(
-        spending.username(),
-        spending.category().name()
+    final CategoryJson category = findCategoryByNameAndUsername(
+        spending.category().name(),
+        spending.username()
     ).orElseGet(() -> createCategory(spending.category()));
 
     final KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -105,7 +105,26 @@ public class SpendDbClient implements SpendClient {
   }
 
   @Override
-  public Optional<CategoryJson> findByUsernameAndName(String username, String name) {
+  public CategoryJson updateCategory(CategoryJson category) {
+    final JdbcTemplate jdbcTemplate = new JdbcTemplate(
+        new SingleConnectionDataSource(
+            CFG.spendJdbcUrl(),
+            CFG.dbUsername(),
+            CFG.dbPassword(),
+            false
+        )
+    );
+
+    jdbcTemplate.update("UPDATE \"category\" SET name = ?, archived = ? WHERE id = ?",
+        category.name(),
+        category.archived(),
+        category.id()
+    );
+    return category;
+  }
+
+  @Override
+  public Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName, String username) {
     final JdbcTemplate jdbcTemplate = new JdbcTemplate(
         new SingleConnectionDataSource(
             CFG.spendJdbcUrl(),
@@ -125,7 +144,7 @@ public class SpendDbClient implements SpendClient {
             rs.getBoolean("archived")
         ),
         username,
-        name
+        categoryName
     ));
   }
 }
