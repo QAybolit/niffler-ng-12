@@ -21,7 +21,7 @@ public class SpendDbClient implements SpendClient {
     @Override
     public SpendJson createSpend(SpendJson spend) {
         SpendEntity spendEntity = SpendEntity.fromJson(spend);
-        if (spendEntity.getCategory() == null || spendEntity.getCategory().getId() == null) {
+        if (spendEntity.getCategory().getId() == null) {
             CategoryEntity categoryEntity = categoryDao.create(spendEntity.getCategory());
             spendEntity.setCategory(categoryEntity);
         }
@@ -31,7 +31,7 @@ public class SpendDbClient implements SpendClient {
     @Override
     public SpendJson editSpend(SpendJson spend) {
         SpendEntity spendEntity = SpendEntity.fromJson(spend);
-        if (spendEntity.getCategory() == null || spendEntity.getCategory().getId() == null) {
+        if (spendEntity.getCategory().getId() == null) {
             CategoryEntity categoryEntity = categoryDao.create(spendEntity.getCategory());
             spendEntity.setCategory(categoryEntity);
         }
