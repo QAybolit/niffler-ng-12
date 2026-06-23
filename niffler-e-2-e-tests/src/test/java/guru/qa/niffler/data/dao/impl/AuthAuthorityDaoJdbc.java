@@ -58,7 +58,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
                         SELECT at.id, at.authority, at.user_id, us.username, us.enabled, us.account_non_expired, us.account_non_locked, us.credentials_non_expired
                         FROM authority AS at
                         JOIN user AS us ON at.user_id = us.id
-                        WHERE id = ?
+                        WHERE at.id = ?
                         """
         )) {
             ps.setObject(1, id);
