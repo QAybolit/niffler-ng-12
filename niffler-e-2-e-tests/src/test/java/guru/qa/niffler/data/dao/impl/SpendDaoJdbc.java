@@ -2,8 +2,8 @@ package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.Databases;
-import guru.qa.niffler.data.dao.CategoryDao;
 import guru.qa.niffler.data.dao.SpendDao;
+import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
 import guru.qa.niffler.model.CurrencyValues;
 
@@ -20,7 +20,6 @@ import java.util.UUID;
 public class SpendDaoJdbc implements SpendDao {
 
     private static final Config CFG = Config.getInstance();
-    private final CategoryDao categoryDao = new CategoryDaoJdbc();
 
     @Override
     public SpendEntity create(SpendEntity spend) {
@@ -86,7 +85,13 @@ public class SpendDaoJdbc implements SpendDao {
     public Optional<SpendEntity> findSpendById(UUID id) {
         try (Connection connection = Databases.connect(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * FROM spend WHERE id = ?"
+                    """
+                            SELECT sp.id, sp.username, sp.currency, sp.spend_date, sp.amount, sp.description,
+                            sp.category_id, c.name, c.username AS category_username, c.archived
+                            FROM spend AS sp
+                            JOIN category AS c ON sp.category_id = c.id
+                            WHERE sp.id = ?
+                            """
             )) {
                 ps.setObject(1, id);
                 ps.execute();
@@ -101,11 +106,13 @@ public class SpendDaoJdbc implements SpendDao {
                         se.setAmount(rs.getDouble("amount"));
                         se.setDescription(rs.getString("description"));
 
-                        // null или стоит бросить ошибку?
-                        se.setCategory(
-                                categoryDao.findCategoryById(rs.getObject("category_id", UUID.class))
-                                        .orElse(null)
-                        );
+                        CategoryEntity ce = new CategoryEntity();
+                        ce.setId(rs.getObject("category_id", UUID.class));
+                        ce.setName(rs.getString("name"));
+                        ce.setUsername(rs.getString("category_username"));
+                        ce.setArchived(rs.getBoolean("archived"));
+
+                        se.setCategory(ce);
                         return Optional.of(se);
                     } else {
                         return Optional.empty();
@@ -123,7 +130,13 @@ public class SpendDaoJdbc implements SpendDao {
 
         try (Connection connection = Databases.connect(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * FROM spend WHERE username = ?"
+                    """
+                            SELECT sp.id, sp.username, sp.currency, sp.spend_date, sp.amount, sp.description,
+                            sp.category_id, c.name, c.username AS category_username, c.archived
+                            FROM spend AS sp
+                            JOIN category AS c ON sp.category_id = c.id
+                            WHERE sp.username = ?
+                            """
             )) {
                 ps.setString(1, username);
                 ps.execute();
@@ -138,11 +151,14 @@ public class SpendDaoJdbc implements SpendDao {
                         se.setAmount(rs.getDouble("amount"));
                         se.setDescription(rs.getString("description"));
 
-                        // null или стоит бросить ошибку?
-                        se.setCategory(
-                                categoryDao.findCategoryById(rs.getObject("category_id", UUID.class))
-                                        .orElse(null)
-                        );
+                        CategoryEntity ce = new CategoryEntity();
+                        ce.setId(rs.getObject("category_id", UUID.class));
+                        ce.setName(rs.getString("name"));
+                        ce.setUsername(rs.getString("category_username"));
+                        ce.setArchived(rs.getBoolean("archived"));
+
+                        se.setCategory(ce);
+
                         result.add(se);
                     }
                 }
