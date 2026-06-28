@@ -19,16 +19,6 @@ enum LocalConfig implements Config {
     }
 
     @Override
-    public String gatewayUrl() {
-        return "http://localhost:8090/";
-    }
-
-    @Override
-    public String userdataUrl() {
-        return "http://localhost:8089/";
-    }
-
-    @Override
     public String userdataJdbcUrl() {
         return "jdbc:postgresql://localhost:5432/niffler-userdata";
     }
