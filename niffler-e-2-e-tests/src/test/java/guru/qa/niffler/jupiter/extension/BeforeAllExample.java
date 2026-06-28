@@ -5,8 +5,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 public class BeforeAllExample implements BeforeAllCallback {
 
-  @Override
-  public void beforeAll(ExtensionContext context) throws Exception {
-    System.out.println("### BeforeAllExample!");
-  }
+    @Override
+    public void beforeAll(ExtensionContext context) throws Exception {
+        System.out.println("### BeforeAllExample!");
+    }
 }

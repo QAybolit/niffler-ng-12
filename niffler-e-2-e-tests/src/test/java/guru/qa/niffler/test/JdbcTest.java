@@ -29,6 +29,6 @@ public class JdbcTest {
                         "Dina"
                 )
         );
-        System.out.println("JSON ===> " +  spendJson);
+        System.out.println("JSON ===> " + spendJson);
     }
 }
