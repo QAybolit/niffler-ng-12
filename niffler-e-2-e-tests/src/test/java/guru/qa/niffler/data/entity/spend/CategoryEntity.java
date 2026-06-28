@@ -18,6 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class CategoryEntity implements Serializable {
+
     private UUID id;
     private String name;
     private String username;
