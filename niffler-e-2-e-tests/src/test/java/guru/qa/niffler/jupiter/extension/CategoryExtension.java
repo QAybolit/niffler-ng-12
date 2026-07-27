@@ -1,9 +1,12 @@
 package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.jupiter.annotation.Category;
+import guru.qa.niffler.jupiter.annotation.Spending;
+import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.service.SpendApiClient;
 import guru.qa.niffler.service.SpendClient;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -12,9 +15,11 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import static guru.qa.niffler.jupiter.extension.TestMethodContextExtension.context;
+import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 
 public class CategoryExtension implements
         BeforeEachCallback,
+        AfterEachCallback,
         ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(CategoryExtension.class);
@@ -25,21 +30,23 @@ public class CategoryExtension implements
     public void beforeEach(ExtensionContext context) {
         AnnotationSupport.findAnnotation(
                 context.getRequiredTestMethod(),
-                Category.class
+                User.class
         ).ifPresent(anno -> {
-                    final CategoryJson created = spendClient.createCategory(
-                            new CategoryJson(
-                                    null,
-                                    anno.name(),
-                                    anno.username(),
-                                    anno.archived()
-                            )
-                    );
-
-                    context.getStore(NAMESPACE).put(
-                            context.getUniqueId(),
-                            created
-                    );
+                    if (anno.categories().length > 0) {
+                        Category category = anno.categories()[0];
+                        CategoryJson newCategory = spendClient.createCategory(
+                                new CategoryJson(
+                                        null,
+                                        randomCategoryName(),
+                                        anno.username(),
+                                        category.archived()
+                                )
+                        );
+                        context.getStore(NAMESPACE).put(
+                                context.getUniqueId(),
+                                newCategory
+                        );
+                    }
                 }
         );
     }
@@ -60,5 +67,10 @@ public class CategoryExtension implements
         final ExtensionContext methodContext = context();
         return methodContext.getStore(NAMESPACE)
                 .get(methodContext.getUniqueId(), CategoryJson.class);
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) throws Exception {
+
     }
 }
