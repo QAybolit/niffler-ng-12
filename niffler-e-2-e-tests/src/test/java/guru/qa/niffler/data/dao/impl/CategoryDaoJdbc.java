@@ -16,8 +16,6 @@ import java.util.UUID;
 
 public class CategoryDaoJdbc implements CategoryDao {
 
-    private static final Config CFG = Config.getInstance();
-
     private final Connection connection;
 
     public CategoryDaoJdbc(Connection connection) {

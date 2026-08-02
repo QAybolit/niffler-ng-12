@@ -18,8 +18,6 @@ import java.util.UUID;
 
 public class AuthUserDaoJdbc implements AuthUserDao {
 
-    private static final Config CFG = Config.getInstance();
-
     private final Connection connection;
 
     public AuthUserDaoJdbc(Connection connection) {

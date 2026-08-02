@@ -16,8 +16,6 @@ import java.util.UUID;
 
 public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
 
-    private static final Config CFG = Config.getInstance();
-
     private final Connection connection;
 
     public AuthAuthorityDaoJdbc(Connection connection) {
