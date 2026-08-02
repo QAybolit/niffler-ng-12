@@ -84,6 +84,9 @@ dependencies {
     // DB
     testImplementation "org.springframework:spring-jdbc:${springJdbcVersion}"
     testImplementation "org.postgresql:postgresql:${project.ext.postgresDriverVersion}"
+    testImplementation "com.atomikos:transactions-jta:${atomikosVersion}:jakarta"
+    testImplementation "com.atomikos:transactions-hibernate4:${atomikosVersion}:jakarta"
+    testImplementation "com.atomikos:transactions-jdbc:${atomikosVersion}"
     testImplementation "p6spy:p6spy:${p6spyVersion}"
     testImplementation "org.hibernate:hibernate-core:${hibernateVersion}"
     testImplementation "org.springframework.security:spring-security-crypto:${springCryptoVersion}"

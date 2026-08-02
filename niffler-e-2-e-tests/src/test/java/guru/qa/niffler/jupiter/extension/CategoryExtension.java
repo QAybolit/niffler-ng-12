@@ -1,12 +1,10 @@
 package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.jupiter.annotation.Category;
-import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.service.SpendClient;
 import guru.qa.niffler.service.SpendDbClient;
-import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -19,12 +17,11 @@ import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 
 public class CategoryExtension implements
         BeforeEachCallback,
-        AfterEachCallback,
         ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(CategoryExtension.class);
 
-  private final SpendClient spendClient = new SpendDbClient();
+    private final SpendClient spendClient = new SpendDbClient();
 
     @Override
     public void beforeEach(ExtensionContext context) {
@@ -67,10 +64,5 @@ public class CategoryExtension implements
         final ExtensionContext methodContext = context();
         return methodContext.getStore(NAMESPACE)
                 .get(methodContext.getUniqueId(), CategoryJson.class);
-    }
-
-    @Override
-    public void afterEach(ExtensionContext context) throws Exception {
-
     }
 }

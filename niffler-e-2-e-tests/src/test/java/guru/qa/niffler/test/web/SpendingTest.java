@@ -11,7 +11,6 @@ import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.page.LoginPage;
 import org.junit.jupiter.api.Test;
 
-import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 import static guru.qa.niffler.utils.RandomDataUtils.randomSentence;
 
 @WebTest
@@ -22,7 +21,7 @@ public class SpendingTest {
     @User(
             username = "Dina",
             categories = @Category(
-                    archived = true
+                    archived = false
             ),
             spendings = @Spending(
                     category = "Подарки",
@@ -53,6 +52,15 @@ public class SpendingTest {
             )
     )
     @Test
-    public void mainPageShouldBeDisplayedAfterSuccessLogin(SpendJson spendJson) {
+    public void updateSpendingAmount(SpendJson spendJson) {
+        final String amount = "33333";
+
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .successLogin(spendJson.username(), "12345")
+                .checkThatPageLoaded()
+                .editSpending(spendJson.description())
+                .setNewSpendingAmount(amount)
+                .save()
+                .checkThatTableContainsSpending(amount);
     }
 }
