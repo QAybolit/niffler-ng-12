@@ -9,7 +9,7 @@ public interface AuthAuthorityDao {
 
     AuthorityEntity create(AuthorityEntity authority);
 
-    Optional<AuthorityEntity> findUserByById(UUID id);
+    Optional<AuthorityEntity> findAuthorityByById(UUID id);
 
     void deleteAuthority(UUID id);
 }

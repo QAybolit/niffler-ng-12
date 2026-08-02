@@ -19,6 +19,7 @@ import java.util.UUID;
 public class AuthUserDaoJdbc implements AuthUserDao {
 
     private final Connection connection;
+    private static final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     public AuthUserDaoJdbc(Connection connection) {
         this.connection = connection;
@@ -26,8 +27,6 @@ public class AuthUserDaoJdbc implements AuthUserDao {
 
     @Override
     public AuthUserEntity create(AuthUserEntity user) {
-        PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO \"user\" (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired)" +
                         " VALUES (?, ?, ?, ?, ?, ?)",

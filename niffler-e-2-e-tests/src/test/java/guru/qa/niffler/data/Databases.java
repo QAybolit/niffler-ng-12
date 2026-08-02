@@ -24,7 +24,7 @@ public class Databases {
     private static final Map<String, DataSource> dataSources = new ConcurrentHashMap<>();
     private static final Map<Long, Map<String, Connection>> threadConnections = new ConcurrentHashMap<>();
 
-    public record XaFunction<T>(Function<Connection, T> function, String jdbcUrl, int isolationLevel) {
+    public record XaFunction<T>(Function<Connection, T> function, String jdbcUrl) {
     }
 
     public record XaConsumer(Consumer<Connection> consumer, String jdbcUrl, int isolationLevel) {
@@ -41,7 +41,7 @@ public class Databases {
             connection.commit();
             connection.setAutoCommit(true);
             return result;
-        } catch (SQLException e) {
+        } catch (Exception | AssertionError e) {
             if (connection != null) {
                 try {
                     connection.rollback();
@@ -66,7 +66,7 @@ public class Databases {
             }
             ut.commit();
             return result;
-        } catch (Exception e) {
+        } catch (Exception | AssertionError e) {
             try {
                 ut.rollback();
             } catch (SystemException ex) {
@@ -85,7 +85,7 @@ public class Databases {
             consumer.accept(connection);
             connection.commit();
             connection.setAutoCommit(true);
-        } catch (SQLException e) {
+        } catch (Exception | AssertionError e) {
             if (connection != null) {
                 try {
                     connection.rollback();
@@ -108,7 +108,7 @@ public class Databases {
                 action.consumer.accept(connection);
             }
             ut.commit();
-        } catch (Exception e) {
+        } catch (Exception | AssertionError e) {
             try {
                 ut.rollback();
             } catch (SystemException ex) {
@@ -174,5 +174,7 @@ public class Databases {
                 }
             }
         }
+        threadConnections.clear();
+        dataSources.clear();
     }
 }

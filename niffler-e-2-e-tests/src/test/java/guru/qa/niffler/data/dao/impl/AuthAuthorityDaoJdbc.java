@@ -50,7 +50,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
     }
 
     @Override
-    public Optional<AuthorityEntity> findUserByById(UUID id) {
+    public Optional<AuthorityEntity> findAuthorityByById(UUID id) {
         try (PreparedStatement ps = connection.prepareStatement(
                 """
                         SELECT at.id, at.authority, at.user_id, us.username, us.enabled, us.account_non_expired, us.account_non_locked, us.credentials_non_expired
