@@ -56,7 +56,6 @@ public class SpendDaoJdbc implements SpendDao {
 
     @Override
     public SpendEntity updateSpend(SpendEntity spend) {
-
         try (PreparedStatement ps = connection.prepareStatement(
                 "UPDATE spend SET username = ?, spend_date = ?, currency = ?, amount = ?, description = ?, category_id = ?" +
                         " WHERE id = ?"
