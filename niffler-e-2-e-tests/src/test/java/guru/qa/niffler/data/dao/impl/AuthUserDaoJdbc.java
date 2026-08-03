@@ -1,41 +1,43 @@
 package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.config.Config;
-import guru.qa.niffler.data.Databases;
-import guru.qa.niffler.data.dao.UserdataUserDao;
-import guru.qa.niffler.data.entity.userdata.UserEntity;
-import guru.qa.niffler.model.CurrencyValues;
+import guru.qa.niffler.data.dao.AuthUserDao;
+import guru.qa.niffler.data.entity.auth.AuthUserEntity;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class UserdataUserDaoJdbc implements UserdataUserDao {
+public class AuthUserDaoJdbc implements AuthUserDao {
 
     private final Connection connection;
+    private static final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-    public UserdataUserDaoJdbc(Connection connection) {
+    public AuthUserDaoJdbc(Connection connection) {
         this.connection = connection;
     }
 
     @Override
-    public UserEntity create(UserEntity user) {
+    public AuthUserEntity create(AuthUserEntity user) {
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO \"user\" (username, currency, firstname, surname, photo, photo_small, full_name)" +
-                        " VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO \"user\" (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired)" +
+                        " VALUES (?, ?, ?, ?, ?, ?)",
                 Statement.RETURN_GENERATED_KEYS
         )) {
             ps.setString(1, user.getUsername());
-            ps.setString(2, user.getCurrency().name());
-            ps.setString(3, user.getFirstname());
-            ps.setString(4, user.getSurname());
-            ps.setObject(5, user.getPhoto());
-            ps.setObject(6, user.getPhotoSmall());
-            ps.setString(7, user.getFullname());
+            ps.setString(2, passwordEncoder.encode(user.getPassword()));
+            ps.setBoolean(3, user.getEnabled());
+            ps.setBoolean(4, user.getAccountNonExpired());
+            ps.setBoolean(5, user.getAccountNonLocked());
+            ps.setBoolean(6, user.getCredentialsNonExpired());
 
             ps.executeUpdate();
 
@@ -49,14 +51,13 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
             }
             user.setId(generatedKey);
             return user;
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Optional<UserEntity> findById(UUID id) {
+    public Optional<AuthUserEntity> findUserByById(UUID id) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT * FROM \"user\" WHERE id = ?"
         )) {
@@ -65,16 +66,13 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
 
             try (ResultSet rs = ps.getResultSet()) {
                 if (rs.next()) {
-                    UserEntity ue = new UserEntity();
+                    AuthUserEntity ue = new AuthUserEntity();
                     ue.setId(rs.getObject("id", UUID.class));
                     ue.setUsername(rs.getString("username"));
-                    ue.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
-                    ue.setFirstname(rs.getString("firstname"));
-                    ue.setSurname(rs.getString("surname"));
-                    ue.setPhoto(rs.getObject("photo", byte[].class));
-                    ue.setPhotoSmall(rs.getObject("photo_small", byte[].class));
-                    ue.setFullname(rs.getString("full_name"));
-
+                    ue.setEnabled(rs.getBoolean("enabled"));
+                    ue.setAccountNonExpired(rs.getBoolean("account_non_expired"));
+                    ue.setAccountNonLocked(rs.getBoolean("account_non_locked"));
+                    ue.setCredentialsNonExpired(rs.getBoolean("credentials_non_expired"));
                     return Optional.of(ue);
                 } else {
                     return Optional.empty();
@@ -86,41 +84,37 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String username) {
+    public List<AuthUserEntity> findAllUsers() {
+        List<AuthUserEntity> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(
-                "SELECT * FROM \"user\" WHERE username = ?"
+                "SELECT * FROM \"user\""
         )) {
-            ps.setObject(1, username);
             ps.execute();
 
             try (ResultSet rs = ps.getResultSet()) {
-                if (rs.next()) {
-                    UserEntity ue = new UserEntity();
+                while (rs.next()) {
+                    AuthUserEntity ue = new AuthUserEntity();
                     ue.setId(rs.getObject("id", UUID.class));
                     ue.setUsername(rs.getString("username"));
-                    ue.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
-                    ue.setFirstname(rs.getString("firstname"));
-                    ue.setSurname(rs.getString("surname"));
-                    ue.setPhoto(rs.getObject("photo", byte[].class));
-                    ue.setPhotoSmall(rs.getObject("photo_small", byte[].class));
-                    ue.setFullname(rs.getString("full_name"));
-
-                    return Optional.of(ue);
-                } else {
-                    return Optional.empty();
+                    ue.setEnabled(rs.getBoolean("enabled"));
+                    ue.setAccountNonExpired(rs.getBoolean("account_non_expired"));
+                    ue.setAccountNonLocked(rs.getBoolean("account_non_locked"));
+                    ue.setCredentialsNonExpired(rs.getBoolean("credentials_non_expired"));
+                    users.add(ue);
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return users;
     }
 
     @Override
-    public void delete(UserEntity user) {
+    public void deleteUserById(UUID id) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "DELETE FROM \"user\" WHERE id = ?"
         )) {
-            ps.setObject(1, user.getId());
+            ps.setObject(1, id);
             int result = ps.executeUpdate();
 
             if (result <= 0) {
