@@ -1,6 +1,5 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
 import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import guru.qa.niffler.data.entity.auth.Authority;
@@ -11,6 +10,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,29 +24,29 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
     }
 
     @Override
-    public AuthorityEntity create(AuthorityEntity authority) {
-        try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO authority (user_id, authority)" +
-                        " VALUES (?, ?)",
-                Statement.RETURN_GENERATED_KEYS
-        )) {
-            ps.setObject(1, authority.getUser().getId());
-            ps.setString(2, authority.getAuthority().name());
+    public void create(AuthorityEntity... authorities) {
+        for (AuthorityEntity authority : authorities) {
+            try (PreparedStatement ps = connection.prepareStatement(
+                    "INSERT INTO authority (user_id, authority)" +
+                            " VALUES (?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
+            )) {
+                ps.setObject(1, authority.getUser().getId());
+                ps.setString(2, authority.getAuthority().name());
+                ps.executeUpdate();
 
-            ps.executeUpdate();
-
-            final UUID generatedKey;
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    generatedKey = rs.getObject("id", UUID.class);
-                } else {
-                    throw new SQLException("Can't find id in ResultSet");
+                final UUID generatedKey;
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        generatedKey = rs.getObject("id", UUID.class);
+                    } else {
+                        throw new SQLException("Can't find id in ResultSet");
+                    }
                 }
+                authority.setId(generatedKey);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-            authority.setId(generatedKey);
-            return authority;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -85,6 +86,42 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<AuthorityEntity> findAll() {
+        List<AuthorityEntity> authorities = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+                """
+                        SELECT at.id, at.authority, at.user_id, us.username, us.enabled, us.account_non_expired, us.account_non_locked, us.credentials_non_expired
+                        FROM authority AS at
+                        JOIN user AS us ON at.user_id = us.id
+                        """
+        )) {
+            ps.execute();
+
+            try (ResultSet rs = ps.getResultSet()) {
+                while (rs.next()) {
+                    AuthorityEntity ae = new AuthorityEntity();
+                    ae.setId(rs.getObject("id", UUID.class));
+                    ae.setAuthority(Authority.valueOf(rs.getString("authority")));
+
+                    AuthUserEntity user = new AuthUserEntity();
+                    user.setId(rs.getObject("user_id", UUID.class));
+                    user.setUsername(rs.getString("username"));
+                    user.setEnabled(rs.getBoolean("enabled"));
+                    user.setAccountNonLocked(rs.getBoolean("account_non_locked"));
+                    user.setAccountNonExpired(rs.getBoolean("account_non_expired"));
+                    user.setCredentialsNonExpired(rs.getBoolean("credentials_non_expired"));
+                    ae.setUser(user);
+
+                    authorities.add(ae);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return authorities;
     }
 
     @Override
