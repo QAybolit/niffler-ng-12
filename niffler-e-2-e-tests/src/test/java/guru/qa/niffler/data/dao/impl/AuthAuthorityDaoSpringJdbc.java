@@ -1,12 +1,16 @@
 package guru.qa.niffler.data.dao.impl;
 
+import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
 import guru.qa.niffler.data.entity.auth.AuthorityEntity;
 import guru.qa.niffler.data.mapper.AuthorityEntityRowMapper;
+import guru.qa.niffler.data.tpl.DataSources;
+import org.springframework.data.transaction.ChainedTransactionManager;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.JdbcTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -15,13 +19,8 @@ import java.util.UUID;
 
 public class AuthAuthorityDaoSpringJdbc implements AuthAuthorityDao {
 
-    private final DataSource dataSource;
-    private final JdbcTemplate template;
-
-    public AuthAuthorityDaoSpringJdbc(DataSource dataSource) {
-        this.dataSource = dataSource;
-        this.template = new JdbcTemplate(dataSource);
-    }
+    private static final Config CFG = Config.getInstance();
+    private final JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
 
     @Override
     public void create(AuthorityEntity... authorities) {

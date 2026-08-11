@@ -1,13 +1,14 @@
 package guru.qa.niffler.data.dao.impl;
 
+import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.SpendDao;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
 import guru.qa.niffler.data.mapper.SpendEntityRowMapper;
+import guru.qa.niffler.data.tpl.DataSources;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -16,13 +17,8 @@ import java.util.UUID;
 
 public class SpendDaoSpringJdbc implements SpendDao {
 
-    private final DataSource dataSource;
-    private final JdbcTemplate template;
-
-    public SpendDaoSpringJdbc(DataSource dataSource) {
-        this.dataSource = dataSource;
-        this.template = new JdbcTemplate(dataSource);
-    }
+    private final JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
+    private static final Config CFG = Config.getInstance();
 
     @Override
     public SpendEntity create(SpendEntity spend) {

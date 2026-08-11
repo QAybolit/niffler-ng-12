@@ -1,13 +1,14 @@
 package guru.qa.niffler.data.dao.impl;
 
+import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.CategoryDao;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.mapper.CategoryEntityRowMapper;
+import guru.qa.niffler.data.tpl.DataSources;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
@@ -15,13 +16,8 @@ import java.util.UUID;
 
 public class CategoryDaoSpringJdbc implements CategoryDao {
 
-    private final DataSource dataSource;
-    private final JdbcTemplate template;
-
-    public CategoryDaoSpringJdbc(DataSource dataSource) {
-        this.dataSource = dataSource;
-        this.template = new JdbcTemplate(dataSource);
-    }
+    private final JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
+    private static final Config CFG = Config.getInstance();
 
     @Override
     public CategoryEntity create(CategoryEntity category) {

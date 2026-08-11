@@ -217,4 +217,23 @@ public class JdbcTest {
             System.out.println("USER NOT FOUND");
         }
     }
+
+    @Test
+    public void createUserBySpringJdbcTest() {
+        UserDbClient userDbClient = new UserDbClient();
+        UserJson userJson = userDbClient.createUserSpringJdbc(
+                new UserJson(
+                        null,
+                        "Bob",
+                        "Robert",
+                        "Smith",
+                        "Robert Smith",
+                        CurrencyValues.RUB,
+                        null,
+                        null
+                )
+        );
+
+        System.out.println("USER JSON ===> " + userJson);
+    }
 }
