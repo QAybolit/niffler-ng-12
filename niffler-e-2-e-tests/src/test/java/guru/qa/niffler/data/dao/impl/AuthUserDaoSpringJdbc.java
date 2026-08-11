@@ -27,7 +27,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         template.update(con -> {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO \\\"user\\\" (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired)" +
+                    "INSERT INTO \"user\" (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired)" +
                             " VALUES (?, ?, ?, ?, ?, ?)",
                     PreparedStatement.RETURN_GENERATED_KEYS
             );
@@ -48,7 +48,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
     }
 
     @Override
-    public Optional<AuthUserEntity> findUserByById(UUID id) {
+    public Optional<AuthUserEntity> findUserById(UUID id) {
         return Optional.ofNullable(
                 template.queryForObject(
                         "SELECT * FROM \"user\" WHERE id = ?",

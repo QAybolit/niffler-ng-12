@@ -1,5 +1,6 @@
 package guru.qa.niffler.test;
 
+import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JdbcTest {
 
@@ -144,16 +146,18 @@ public class JdbcTest {
         spendDbClient.deleteSpend("d7e258e6-6cec-11f1-96b9-0242ac110004");
     }
 
+    // ============= Варианты создания пользователя =============
+
     @Test
-    public void createUserTest() {
+    public void createUserByJdbcTest() {
         UserDbClient userDbClient = new UserDbClient();
         UserJson userJson = userDbClient.createUser(
                 new UserJson(
                         null,
-                        "Bob",
-                        "Robert",
+                        "Jack",
+                        "Jack",
                         "Smith",
-                        "Robert Smith",
+                        "Jack Smith",
                         CurrencyValues.RUB,
                         null,
                         null
@@ -164,26 +168,106 @@ public class JdbcTest {
     }
 
     @Test
-    public void failUserCreationTest() {
+    public void createUserByTxJdbcTest() {
+        UserDbClient userDbClient = new UserDbClient();
+        UserJson userJson = userDbClient.createUserTxJdbc(
+                new UserJson(
+                        null,
+                        "Ivan77",
+                        "Ivan",
+                        "Smirnov",
+                        "Ivan Smirnov",
+                        CurrencyValues.RUB,
+                        null,
+                        null
+                )
+        );
+
+        System.out.println("USER JSON ===> " + userJson);
+    }
+
+    @Test
+    public void createUserBySpringJdbcTest() {
+        UserDbClient userDbClient = new UserDbClient();
+        UserJson userJson = userDbClient.createUserSpringJdbc(
+                new UserJson(
+                        null,
+                        "German",
+                        "German",
+                        "Smirnov",
+                        "German Smirnov",
+                        CurrencyValues.RUB,
+                        null,
+                        null
+                )
+        );
+
+        System.out.println("USER JSON ===> " + userJson);
+    }
+
+    @Test
+    public void createUserByTxSpringJdbcTest() {
+        UserDbClient userDbClient = new UserDbClient();
+        UserJson userJson = userDbClient.createUserTxSpringJdbc(
+                new UserJson(
+                        null,
+                        "Alexey",
+                        "Alexey",
+                        "Smirnov",
+                        "Alexey Smirnov",
+                        CurrencyValues.RUB,
+                        null,
+                        null
+                )
+        );
+
+        System.out.println("USER JSON ===> " + userJson);
+    }
+
+    @Test
+    public void createUserWithChainTxTest() {
+        UserDbClient userDbClient = new UserDbClient();
+        UserJson userJson = userDbClient.createUserChainTxSpringJdbc(
+                new UserJson(
+                        null,
+                        "Gleb",
+                        "Gleb",
+                        "Smirnov",
+                        "Gleb Smirnov",
+                        CurrencyValues.RUB,
+                        null,
+                        null
+                )
+        );
+
+        System.out.println("USER JSON ===> " + userJson);
+    }
+
+    @Test
+    public void failUserCreationWithChainTxTest() {
         UserDbClient userDbClient = new UserDbClient();
         try {
-            UserJson userJson = userDbClient.createUser(
+            UserJson userJson = userDbClient.createUserChainTxSpringJdbc(
                     new UserJson(
                             null,
-                            "Mary",
+                            "Oleg-Oleg",
+                            "Oleg-Oleg",
+                            "Smirnov",
+                            "Oleg-Oleg Smirnov",
                             null,
-                            "Smith",
-                            "Mary Smith",
-                            CurrencyValues.RUB,
                             null,
                             null
                     )
             );
         } catch (RuntimeException e) {
-            Optional<UserJson> userJson =  userDbClient.findUserByUsername("Harry");
-            assertFalse(userJson.isPresent(), "User with username 'Harry' exists in DB");
+            Optional<AuthUserEntity> userEntity = userDbClient.findAll().stream()
+                    .filter(user -> user.getUsername().equals("Oleg-Oleg"))
+                    .findFirst();
+            assertFalse(userEntity.isPresent(), "User with username 'Oleg-Oleg' exists in DB");
         }
     }
+
+    // ============= Конец =============
 
     @Test
     public void findUserByIdTest() {
@@ -216,24 +300,5 @@ public class JdbcTest {
         } else {
             System.out.println("USER NOT FOUND");
         }
-    }
-
-    @Test
-    public void createUserBySpringJdbcTest() {
-        UserDbClient userDbClient = new UserDbClient();
-        UserJson userJson = userDbClient.createUserSpringJdbc(
-                new UserJson(
-                        null,
-                        "Bob",
-                        "Robert",
-                        "Smith",
-                        "Robert Smith",
-                        CurrencyValues.RUB,
-                        null,
-                        null
-                )
-        );
-
-        System.out.println("USER JSON ===> " + userJson);
     }
 }

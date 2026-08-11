@@ -45,4 +45,26 @@ public class XaTransactionTemplate {
             }
         }
     }
+
+    public void execute(Runnable... actions) {
+        UserTransaction ut = new UserTransactionImp();
+        try {
+            ut.begin();
+            for (Runnable action : actions) {
+                action.run();
+            }
+            ut.commit();
+        } catch (Exception | AssertionError e) {
+            try {
+                ut.rollback();
+            } catch (SystemException ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        } finally {
+            if (this.closeAfterAction.get()) {
+                this.connectionHolders.close();
+            }
+        }
+    }
 }
