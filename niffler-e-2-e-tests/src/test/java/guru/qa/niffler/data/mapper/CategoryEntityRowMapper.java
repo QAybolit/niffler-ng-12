@@ -13,7 +13,7 @@ public class CategoryEntityRowMapper implements RowMapper<CategoryEntity> {
 
     private CategoryEntityRowMapper() {
     }
-    
+
     @Override
     public CategoryEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
         CategoryEntity result = new CategoryEntity();

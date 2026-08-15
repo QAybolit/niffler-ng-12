@@ -99,7 +99,6 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
                     ue.setAccountNonExpired(rs.getBoolean("account_non_expired"));
                     ue.setAccountNonLocked(rs.getBoolean("account_non_locked"));
                     ue.setCredentialsNonExpired(rs.getBoolean("credentials_non_expired"));
-                    return Optional.of(ue);
                 }
                 if (user == null) {
                     return Optional.empty();

@@ -1,5 +1,7 @@
 package guru.qa.niffler.data.entity.userdata;
 
+import guru.qa.niffler.model.FriendshipJson;
+import guru.qa.niffler.model.UserJson;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +16,7 @@ import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Objects;
 
@@ -55,5 +58,14 @@ public class FriendshipEntity implements Serializable {
     @Override
     public final int hashCode() {
         return Objects.hash(requester, addressee);
+    }
+
+    public static FriendshipEntity fromJson(FriendshipJson json) {
+        FriendshipEntity fe = new FriendshipEntity();
+        fe.setRequester(UserEntity.fromJson(json.requester()));
+        fe.setAddressee(UserEntity.fromJson(json.addressee()));
+        fe.setCreatedDate(json.createdDate());
+        fe.setStatus(json.status());
+        return fe;
     }
 }
