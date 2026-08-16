@@ -1,8 +1,8 @@
-package guru.qa.niffler.data.dao.impl;
+package guru.qa.niffler.data.repository.impl;
 
 import guru.qa.niffler.config.Config;
-import guru.qa.niffler.data.dao.UserdataUserDao;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
+import guru.qa.niffler.data.repository.UserdataUserRepository;
 import guru.qa.niffler.model.CurrencyValues;
 
 import java.sql.PreparedStatement;
@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import static guru.qa.niffler.data.tpl.Connections.holder;
 
-public class UserdataUserDaoJdbc implements UserdataUserDao {
+public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
 
     private static final Config CFG = Config.getInstance();
 
@@ -78,6 +78,45 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
                     return Optional.empty();
                 }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void addIncomeInvitation(UserEntity requester, UserEntity addressee) {
+        try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
+                "INSERT INTO \"user\" (username, currency, firstname, surname, photo, photo_small, full_name)" +
+                        " VALUES (?, ?, ?, ?, ?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS
+        )) {
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void addOutcomeInvitation(UserEntity requester, UserEntity addressee) {
+        try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
+                "INSERT INTO \"user\" (username, currency, firstname, surname, photo, photo_small, full_name)" +
+                        " VALUES (?, ?, ?, ?, ?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS
+        )) {
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void addFriend(UserEntity requester, UserEntity addressee) {
+        try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
+                "INSERT INTO \"user\" (username, currency, firstname, surname, photo, photo_small, full_name)" +
+                        " VALUES (?, ?, ?, ?, ?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS
+        )) {
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
