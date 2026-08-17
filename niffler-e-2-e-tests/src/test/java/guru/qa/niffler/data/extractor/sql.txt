@@ -1,0 +1,32 @@
+SELECT a.id as authority_id,
+ authority,
+ user_id as id,
+ u.username,
+ u.password,
+ u.enabled,
+ u.account_non_expired,
+ u.account_non_locked,
+ u.credentials_non_expired
+FROM "user" u join public.authority a on u.id = a.user_id WHERE u.id = ?
+
+==================
+
+SELECT sp.id,
+sp.username,
+sp.currency,
+sp.spend_date,
+sp.amount,
+sp.description,
+sp.category_id,
+c.name,
+c.username AS category_username,
+c.archived
+FROM spend AS sp
+JOIN category AS c ON sp.category_id = c.id
+WHERE sp.id = ?
+
+==================
+
+SELECT * FROM "user" WHERE id = ?
+
+==================
