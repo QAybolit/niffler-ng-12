@@ -113,6 +113,11 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     }
 
     @Override
+    public Optional<AuthUserEntity> findUserByUsername(String username) {
+        return Optional.empty();
+    }
+
+    @Override
     public List<AuthUserEntity> findAll() {
         List<AuthUserEntity> users = new ArrayList<>();
         try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(

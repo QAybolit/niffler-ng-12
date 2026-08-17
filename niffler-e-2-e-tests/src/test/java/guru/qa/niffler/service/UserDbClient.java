@@ -15,11 +15,15 @@ import guru.qa.niffler.data.entity.auth.Authority;
 import guru.qa.niffler.data.entity.auth.AuthorityEntity;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.repository.AuthUserRepository;
+import guru.qa.niffler.data.repository.UserdataUserRepository;
+import guru.qa.niffler.data.repository.impl.AuthUserRepositoryHibernate;
 import guru.qa.niffler.data.repository.impl.AuthUserRepositoryJdbc;
+import guru.qa.niffler.data.repository.impl.UserdataUserRepositoryHibernate;
 import guru.qa.niffler.data.tpl.DataSources;
 import guru.qa.niffler.data.tpl.JdbcTransactionTemplate;
 import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.UserJson;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.transaction.ChainedTransactionManager;
 import org.springframework.jdbc.support.JdbcTransactionManager;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -50,6 +54,10 @@ public class UserDbClient implements UserClient {
     // JDBC Repository
     private final AuthUserRepository authUserRepositoryJdbc = new AuthUserRepositoryJdbc();
 
+    // Hibernate
+    private final AuthUserRepository authUserRepositoryHibernate = new AuthUserRepositoryHibernate();
+    private final UserdataUserRepository userdataUserRepositoryHibernate = new UserdataUserRepositoryHibernate();
+
 
     private final TransactionTemplate transactionTemplate = new TransactionTemplate(
             new JdbcTransactionManager(
@@ -71,14 +79,67 @@ public class UserDbClient implements UserClient {
             )
     );
 
-    // JDBC без транзакций
+    public UserJson createUserHibernate(UserJson user) {
+        return xaTxTemplate.execute(() -> {
+            AuthUserEntity authUser = getAuthUserEntity(user);
+            authUserRepositoryHibernate.create(authUser);
+            return UserJson.fromEntity(
+                    userdataUserRepositoryHibernate
+                            .create(UserEntity.fromJson(user))
+            );
+        });
+    }
+
+    public void addIncomeInvitation(UserJson target, int count) {
+        if (count > 0) {
+            UserEntity targetEntity = userdataUserRepositoryHibernate.findById(target.id()).orElseThrow();
+
+            for (int i = 1; i <= count; i++) {
+                xaTxTemplate.execute(() -> {
+                    // TODO доделать
+                    AuthUserEntity authUser = getAuthUserEntity(target);
+                    authUserRepositoryHibernate.create(authUser);
+                    return UserJson.fromEntity(
+                            userdataUserRepositoryHibernate
+                                    .create(UserEntity.fromJson(target))
+                    );
+                });
+            }
+
+        }
+    }
+
+    @NotNull
+    private static AuthUserEntity getAuthUserEntity(UserJson user) {
+        AuthUserEntity authUser = new AuthUserEntity();
+        authUser.setUsername(user.username());
+        authUser.setPassword(passwordEncoder.encode("12345"));
+        authUser.setEnabled(true);
+        authUser.setAccountNonExpired(true);
+        authUser.setAccountNonLocked(true);
+        authUser.setCredentialsNonExpired(true);
+        authUser.setAuthorities(
+                Arrays.stream(Authority.values())
+                        .map(e -> {
+                                    AuthorityEntity ae = new AuthorityEntity();
+                                    ae.setUser(authUser);
+                                    ae.setAuthority(e);
+                                    return ae;
+                                }
+                        ).toList()
+        );
+        return authUser;
+    }
+
+
+    // ============= JDBC без транзакций =============
     @Override
     public UserJson createUser(UserJson userJson) {
         UserEntity userEntity = UserEntity.fromJson(userJson);
         return UserJson.fromEntity(userdataUserDaoJdbc.create(userEntity));
     }
 
-    // JDBC с транзакциями
+    // ============= JDBC с транзакциями =============
     public UserJson createUserTxJdbc(UserJson userJson) {
         return jdbcTxTemplate.execute(() -> {
                     UserEntity userEntity = UserEntity.fromJson(userJson);
@@ -88,7 +149,7 @@ public class UserDbClient implements UserClient {
         );
     }
 
-    // SpringJDBC без транзакций
+    // ============= SpringJDBC без транзакций =============
     public UserJson createUserSpringJdbc(UserJson user) {
         AuthUserEntity authUser = new AuthUserEntity();
         authUser.setUsername(user.username());
@@ -115,7 +176,7 @@ public class UserDbClient implements UserClient {
         );
     }
 
-    // SpringJDBC с транзакциями
+    // ============= SpringJDBC с транзакциями =============
     public UserJson createUserTxSpringJdbc(UserJson user) {
         return xaTxTemplate.execute(() -> {
             AuthUserEntity authUser = new AuthUserEntity();
@@ -145,7 +206,7 @@ public class UserDbClient implements UserClient {
 
     }
 
-    // JDBC Repository с транзакциями
+    // ============= JDBC Repository с транзакциями =============
     public UserJson createUserTxJdbcRepository(UserJson user) {
         return xaTxTemplate.execute(() -> {
             AuthUserEntity authUser = new AuthUserEntity();
@@ -157,13 +218,13 @@ public class UserDbClient implements UserClient {
             authUser.setCredentialsNonExpired(true);
             authUser.setAuthorities(
                     Arrays.stream(Authority.values())
-                    .map(e -> {
-                                AuthorityEntity ae = new AuthorityEntity();
-                                ae.setUser(authUser);
-                                ae.setAuthority(e);
-                                return ae;
-                            }
-                    ).toList()
+                            .map(e -> {
+                                        AuthorityEntity ae = new AuthorityEntity();
+                                        ae.setUser(authUser);
+                                        ae.setAuthority(e);
+                                        return ae;
+                                    }
+                            ).toList()
             );
 
             authUserRepositoryJdbc.create(authUser);
@@ -176,7 +237,7 @@ public class UserDbClient implements UserClient {
 
     }
 
-    // SpringJDBC с транзакциями
+    // ============= SpringJDBC с транзакциями =============
     public UserJson createUserChainTxSpringJdbc(UserJson user) {
         return txTemplate.execute(status -> {
             AuthUserEntity authUser = new AuthUserEntity();
@@ -206,14 +267,14 @@ public class UserDbClient implements UserClient {
 
     }
 
-    // JDBC без транзакций
+    // ============= JDBC без транзакций =============
     @Override
     public Optional<UserJson> findUserById(String id) {
         Optional<UserEntity> userEntity = userdataUserDaoJdbc.findById(UUID.fromString(id));
         return userEntity.map(UserJson::fromEntity);
     }
 
-    // JDBC с транзакциями
+    // ============= JDBC с транзакциями =============
     public Optional<UserJson> findUserByIdTxJdbc(String id) {
         return jdbcTxTemplate.execute(() -> {
                     Optional<UserEntity> userEntity = userdataUserDaoJdbc.findById(UUID.fromString(id));
@@ -223,13 +284,13 @@ public class UserDbClient implements UserClient {
         );
     }
 
-    // SpringJDBC без транзакций
+    // ============= SpringJDBC без транзакций =============
     public Optional<UserJson> findUserByIdSpringJdbc(String id) {
         Optional<UserEntity> userEntity = userdataUserDaoSpringJdbc.findById(UUID.fromString(id));
         return userEntity.map(UserJson::fromEntity);
     }
 
-    // SpringJDBC с транзакциями
+    // ============= SpringJDBC с транзакциями =============
     public Optional<UserJson> findUserByIdTxSpringJdbc(String id) {
         return xaTxTemplate.execute(() -> {
                     Optional<UserEntity> userEntity = userdataUserDaoSpringJdbc.findById(UUID.fromString(id));
@@ -238,14 +299,14 @@ public class UserDbClient implements UserClient {
         );
     }
 
-    // JDBC без транзакций
+    // ============= JDBC без транзакций =============
     @Override
     public Optional<UserJson> findUserByUsername(String username) {
         Optional<UserEntity> userEntity = userdataUserDaoJdbc.findByUsername(username);
         return userEntity.map(UserJson::fromEntity);
     }
 
-    // JDBC с транзакциями
+    // ============= JDBC с транзакциями =============
     public Optional<UserJson> findUserByUsernameTxJdbc(String username) {
         return jdbcTxTemplate.execute(() -> {
                     Optional<UserEntity> userEntity = userdataUserDaoJdbc.findByUsername(username);
@@ -255,13 +316,13 @@ public class UserDbClient implements UserClient {
         );
     }
 
-    // SpringJDBC без транзакций
+    // ============= SpringJDBC без транзакций =============
     public Optional<UserJson> findUserByUsernameSpringJdbc(String username) {
         Optional<UserEntity> userEntity = userdataUserDaoSpringJdbc.findByUsername(username);
         return userEntity.map(UserJson::fromEntity);
     }
 
-    // SpringJDBC с транзакциями
+    // ============= SpringJDBC с транзакциями =============
     public Optional<UserJson> findUserByUsernameTxSpringJdbc(String username) {
         return xaTxTemplate.execute(() -> {
                     Optional<UserEntity> userEntity = userdataUserDaoSpringJdbc.findByUsername(username);
@@ -270,13 +331,13 @@ public class UserDbClient implements UserClient {
         );
     }
 
-    // JDBC без транзакций
+    // ============= JDBC без транзакций =============
     @Override
     public void deleteUser(UserJson user) {
         userdataUserDaoJdbc.delete(UserEntity.fromJson(user));
     }
 
-    // JDBC с транзакциями
+    // ============= JDBC с транзакциями =============
     public void deleteUserTxJdbc(UserJson user) {
         jdbcTxTemplate.execute(
                 () -> userdataUserDaoJdbc.delete(UserEntity.fromJson(user)),
@@ -284,12 +345,12 @@ public class UserDbClient implements UserClient {
         );
     }
 
-    // SpringJDBC без транзакций
+    // ============= SpringJDBC без транзакций =============
     public void deleteUserSpringJdbc(UserJson user) {
         userdataUserDaoSpringJdbc.delete(UserEntity.fromJson(user));
     }
 
-    // SpringJDBC с транзакциями
+    // ============= SpringJDBC с транзакциями =============
     public void deleteUserTxSpringJdbc(UserJson user) {
         xaTxTemplate.execute(() -> userdataUserDaoSpringJdbc.delete(UserEntity.fromJson(user)));
     }
