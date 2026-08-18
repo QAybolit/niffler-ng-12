@@ -1,5 +1,6 @@
 package guru.qa.niffler.service;
 
+import com.github.javafaker.Faker;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
 import guru.qa.niffler.data.dao.AuthUserDao;
@@ -22,7 +23,9 @@ import guru.qa.niffler.data.repository.impl.UserdataUserRepositoryHibernate;
 import guru.qa.niffler.data.tpl.DataSources;
 import guru.qa.niffler.data.tpl.JdbcTransactionTemplate;
 import guru.qa.niffler.data.tpl.XaTransactionTemplate;
+import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserJson;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.transaction.ChainedTransactionManager;
 import org.springframework.jdbc.support.JdbcTransactionManager;
@@ -30,6 +33,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.List;
@@ -79,41 +83,68 @@ public class UserDbClient implements UserClient {
             )
     );
 
-    public UserJson createUserHibernate(UserJson user) {
+    public UserJson createUserHibernate(String username, String password) {
         return xaTxTemplate.execute(() -> {
-            AuthUserEntity authUser = getAuthUserEntity(user);
+            AuthUserEntity authUser = getAuthUserEntity(username, password);
             authUserRepositoryHibernate.create(authUser);
             return UserJson.fromEntity(
                     userdataUserRepositoryHibernate
-                            .create(UserEntity.fromJson(user))
+                            .create(userEntity(username))
             );
         });
     }
 
-    public void addIncomeInvitation(UserJson target, int count) {
+    public void addIncomeInvitation(UserJson targetUser, int count) {
         if (count > 0) {
-            UserEntity targetEntity = userdataUserRepositoryHibernate.findById(target.id()).orElseThrow();
+            UserEntity targetEntity = userdataUserRepositoryHibernate.findById(targetUser.id()).orElseThrow();
 
-            for (int i = 1; i <= count; i++) {
+            for (int i = 0; i < count; i++) {
                 xaTxTemplate.execute(() -> {
-                    // TODO доделать
-                    AuthUserEntity authUser = getAuthUserEntity(target);
+                    String username = new Faker().name().username();
+                    AuthUserEntity authUser = getAuthUserEntity(username, "12345");
                     authUserRepositoryHibernate.create(authUser);
-                    return UserJson.fromEntity(
-                            userdataUserRepositoryHibernate
-                                    .create(UserEntity.fromJson(target))
-                    );
+                    UserEntity addressee = userdataUserRepositoryHibernate.create(userEntity(username));
+
+                    userdataUserRepositoryHibernate.addIncomeInvitation(targetEntity, addressee);
+                    return null;
                 });
             }
-
         }
     }
 
-    @NotNull
-    private static AuthUserEntity getAuthUserEntity(UserJson user) {
+    public void addOutcomeInvitation(UserJson targetUser, int count) {
+        if (count > 0) {
+            UserEntity targetEntity = userdataUserRepositoryHibernate.findById(targetUser.id()).orElseThrow();
+
+            for (int i = 0; i < count; i++) {
+                xaTxTemplate.execute(() -> {
+                    String username = new Faker().name().username();
+                    AuthUserEntity authUser = getAuthUserEntity(username, "12345");
+                    authUserRepositoryHibernate.create(authUser);
+                    UserEntity addressee = userdataUserRepositoryHibernate.create(userEntity(username));
+
+                    userdataUserRepositoryHibernate.addOutcomeInvitation(targetEntity, addressee);
+                    return null;
+                });
+            }
+        }
+    }
+
+    void addFriend(UserJson targetUser, int count) {
+
+    }
+
+    private UserEntity userEntity(String username) {
+        UserEntity ue = new UserEntity();
+        ue.setUsername(username);
+        ue.setCurrency(CurrencyValues.RUB);
+        return ue;
+    }
+
+    private static AuthUserEntity getAuthUserEntity(String username, String password) {
         AuthUserEntity authUser = new AuthUserEntity();
-        authUser.setUsername(user.username());
-        authUser.setPassword(passwordEncoder.encode("12345"));
+        authUser.setUsername(username);
+        authUser.setPassword(passwordEncoder.encode(password));
         authUser.setEnabled(true);
         authUser.setAccountNonExpired(true);
         authUser.setAccountNonLocked(true);

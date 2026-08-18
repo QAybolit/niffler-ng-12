@@ -1,7 +1,6 @@
 package guru.qa.niffler.data.repository.impl;
 
 import guru.qa.niffler.config.Config;
-import guru.qa.niffler.data.dao.AuthUserDao;
 import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import guru.qa.niffler.data.entity.auth.Authority;
 import guru.qa.niffler.data.entity.auth.AuthorityEntity;
@@ -36,11 +35,11 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
                      "INSERT INTO authority (user_id, authority)" +
                              " VALUES (?, ?)")
         ) {
+            userPs.setString(1, user.getUsername());
             userPs.setString(2, passwordEncoder.encode(user.getPassword()));
             userPs.setBoolean(3, user.getEnabled());
             userPs.setBoolean(4, user.getAccountNonExpired());
             userPs.setBoolean(5, user.getAccountNonLocked());
-            userPs.setString(1, user.getUsername());
             userPs.setBoolean(6, user.getCredentialsNonExpired());
 
             userPs.executeUpdate();
@@ -58,6 +57,36 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
             for (AuthorityEntity authority : user.getAuthorities()) {
                 authorityPs.setObject(1, generatedKey);
                 authorityPs.setString(2, authority.getAuthority().name());
+                authorityPs.addBatch();
+                authorityPs.clearParameters();
+            }
+            authorityPs.executeBatch();
+
+            return user;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public AuthUserEntity update(AuthUserEntity user) {
+        try (PreparedStatement userPs = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+                "UPDATE \"user\" SET username = ?, enabled = ?, account_non_expired = ?, account_non_locked = ?, credentials_non_expired = ?" +
+                        " WHERE id = ?");
+             PreparedStatement authorityPs = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+                     "UPDATE authority SET authority = ? WHERE id = ?");
+        ) {
+            userPs.setString(1, user.getUsername());
+            userPs.setBoolean(2, user.getEnabled());
+            userPs.setBoolean(3, user.getAccountNonExpired());
+            userPs.setBoolean(4, user.getAccountNonLocked());
+            userPs.setBoolean(5, user.getCredentialsNonExpired());
+
+            userPs.executeUpdate();
+
+            for (AuthorityEntity authority : user.getAuthorities()) {
+                authorityPs.setString(1, authority.getAuthority().name());
+                authorityPs.setObject(2, authority.getId());
                 authorityPs.addBatch();
                 authorityPs.clearParameters();
             }
@@ -144,11 +173,11 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     }
 
     @Override
-    public void deleteUserById(UUID id) {
+    public void remove(AuthUserEntity user) {
         try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
                 "DELETE FROM \"user\" WHERE id = ?"
         )) {
-            ps.setObject(1, id);
+            ps.setObject(1, user.getId());
             int result = ps.executeUpdate();
 
             if (result <= 0) {
