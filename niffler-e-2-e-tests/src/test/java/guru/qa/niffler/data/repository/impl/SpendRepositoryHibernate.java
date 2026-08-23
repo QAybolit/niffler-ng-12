@@ -42,14 +42,13 @@ public class SpendRepositoryHibernate implements SpendRepository {
     }
 
     @Override
-    public Optional<CategoryEntity> findCategoryByUsernameAndSpendName(String username, String spendName) {
+    public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
         try {
             CategoryEntity category = entityManager.createQuery(
-                            "SELECT с FROM CategoryEntity c JOIN SpendEntity s ON s.category.id = с" +
-                                    " WHERE c.username = :username AND s.description = :spendName",
+                            "SELECT c FROM CategoryEntity c WHERE c.username = :username AND c.name = :categoryName",
                             CategoryEntity.class
                     ).setParameter("username", username)
-                    .setParameter("spendName", spendName)
+                    .setParameter("categoryName", categoryName)
                     .getSingleResult();
 
             return Optional.of(category);
@@ -67,7 +66,7 @@ public class SpendRepositoryHibernate implements SpendRepository {
     public Optional<SpendEntity> findSpendByUsernameAndSpendDescription(String username, String description) {
         try {
             SpendEntity spend = entityManager.createQuery(
-                            "SELECT s FROM SpendEntity s JOIN SpendEntity s WHERE s.username = :username AND s.description = :description",
+                            "SELECT s FROM SpendEntity s WHERE s.username = :username AND s.description = :description",
                             SpendEntity.class
                     ).setParameter("username", username)
                     .setParameter("description", description)

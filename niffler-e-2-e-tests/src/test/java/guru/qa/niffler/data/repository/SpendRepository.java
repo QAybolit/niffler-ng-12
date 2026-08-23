@@ -16,7 +16,7 @@ public interface SpendRepository {
 
     Optional<CategoryEntity> findCategoryById(UUID id);
 
-    Optional<CategoryEntity> findCategoryByUsernameAndSpendName(String username, String spendName);
+    Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName);
 
     Optional<SpendEntity> findSpendById(UUID id);
 

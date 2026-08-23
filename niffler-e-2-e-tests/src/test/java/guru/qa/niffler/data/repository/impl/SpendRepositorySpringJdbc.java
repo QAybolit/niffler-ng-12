@@ -93,14 +93,13 @@ public class SpendRepositorySpringJdbc implements SpendRepository {
     }
 
     @Override
-    public Optional<CategoryEntity> findCategoryByUsernameAndSpendName(String username, String spendName) {
+    public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
         return Optional.ofNullable(
                 template.queryForObject(
-                        "SELECT * FROM category c JOIN spend sp ON c.id = sp.category_id " +
-                                " WHERE c.username = ? AND sp.description = ?",
+                        "SELECT * FROM category c WHERE username = ? AND name = ?",
                         CategoryEntityRowMapper.INSTANCE,
                         username,
-                        spendName
+                        categoryName
                 )
         );
     }

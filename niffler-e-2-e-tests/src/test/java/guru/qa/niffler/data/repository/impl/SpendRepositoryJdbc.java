@@ -129,13 +129,12 @@ public class SpendRepositoryJdbc implements SpendRepository {
     }
 
     @Override
-    public Optional<CategoryEntity> findCategoryByUsernameAndSpendName(String username, String spendName) {
+    public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM category c JOIN spend sp ON c.id = sp.category_id " +
-                        " WHERE c.username = ? AND sp.description = ?"
+                "SELECT * FROM category c WHERE username = ? AND name = ?"
         )) {
             ps.setString(1, username);
-            ps.setString(2, spendName);
+            ps.setString(2, categoryName);
             ps.execute();
 
             try (ResultSet rs = ps.getResultSet()) {
