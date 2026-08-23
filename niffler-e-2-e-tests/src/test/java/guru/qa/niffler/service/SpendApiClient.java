@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SpendApiClient implements SpendClient {
+public class SpendApiClient {
 
     private static final Config CFG = Config.getInstance();
 
@@ -27,7 +27,6 @@ public class SpendApiClient implements SpendClient {
 
     private final SpendApi spendApi = retrofit.create(SpendApi.class);
 
-    @Override
     public SpendJson createSpend(SpendJson spend) {
         final Response<SpendJson> response;
         try {
@@ -40,7 +39,6 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    @Override
     public CategoryJson createCategory(CategoryJson category) {
         final Response<CategoryJson> response;
         try {
@@ -53,7 +51,6 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    @Override
     public CategoryJson updateCategory(CategoryJson category) {
         final Response<CategoryJson> response;
         try {
@@ -66,7 +63,7 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    public SpendJson editSpend(SpendJson spend) {
+    public SpendJson updateSpend(SpendJson spend) {
         final Response<SpendJson> response;
         try {
             response = spendApi.editSpend(spend)
@@ -128,7 +125,6 @@ public class SpendApiClient implements SpendClient {
         return response.body();
     }
 
-    @Override
     public Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName, String username) {
         throw new UnsupportedOperationException("Not implemented :(");
     }

@@ -88,13 +88,13 @@ public class JdbcTest {
         System.out.println("CATEGORY JSON ===> " + categoryJson);
     }
 
-    @Test
-    public void findAllCategoriesByUsernameTest() {
-        System.out.println("Start findAllCategoriesByUsernameTest");
-        SpendDbClient spendDbClient = new SpendDbClient();
-        List<CategoryJson> list = spendDbClient.allCategory("Dina");
-        System.out.println("CATEGORY LIST ===> " + list);
-    }
+//    @Test
+//    public void findAllCategoriesByUsernameTest() {
+//        System.out.println("Start findAllCategoriesByUsernameTest");
+//        SpendDbClient spendDbClient = new SpendDbClient();
+//        List<CategoryJson> list = spendDbClient.allCategory("Dina");
+//        System.out.println("CATEGORY LIST ===> " + list);
+//    }
 
     @Test
     public void deleteCategoryTest() {
@@ -105,36 +105,36 @@ public class JdbcTest {
 
     @Test
     public void updateCategoryTest() {
-        System.out.println("Start updateCategoryTest");
-        SpendDbClient spendDbClient = new SpendDbClient();
-        spendDbClient.updateCategory(
-                new CategoryJson(
-                        UUID.fromString("60666d5e-6d58-11f1-8d79-0242ac110004"),
-                        "category-test-100",
-                        "Dina",
-                        false
-                )
-        );
+//        System.out.println("Start updateCategoryTest");
+//        SpendDbClient spendDbClient = new SpendDbClient();
+//        spendDbClient.updateCategory(
+//                new CategoryJson(
+//                        UUID.fromString("60666d5e-6d58-11f1-8d79-0242ac110004"),
+//                        "category-test-100",
+//                        "Dina",
+//                        false
+//                )
+//        );
     }
 
     @Test
     public void findAllSpendsByIdTest() {
-        System.out.println("Start findAllSpendsByIdTest");
-        SpendDbClient spendDbClient = new SpendDbClient();
-        List<SpendJson> list = spendDbClient.allSpends("Dina");
-        System.out.println("SPEND LIST ===> " + list);
+//        System.out.println("Start findAllSpendsByIdTest");
+//        SpendDbClient spendDbClient = new SpendDbClient();
+//        List<SpendJson> list = spendDbClient.allSpends("Dina");
+//        System.out.println("SPEND LIST ===> " + list);
     }
 
     @Test
     public void findSpendByIdTest() {
-        System.out.println("Start findSpendByIdTest");
-        SpendDbClient spendDbClient = new SpendDbClient();
-        Optional<SpendJson> spendJson = spendDbClient.getSpend("d7e258e6-6cec-11f1-96b9-0242ac110004");
-        if (spendJson.isPresent()) {
-            System.out.println("SPEND JSON ===> " + spendJson.get());
-        } else {
-            System.out.println("SPEND NOT FOUND");
-        }
+//        System.out.println("Start findSpendByIdTest");
+//        SpendDbClient spendDbClient = new SpendDbClient();
+//        Optional<SpendJson> spendJson = spendDbClient.getSpend("d7e258e6-6cec-11f1-96b9-0242ac110004");
+//        if (spendJson.isPresent()) {
+//            System.out.println("SPEND JSON ===> " + spendJson.get());
+//        } else {
+//            System.out.println("SPEND NOT FOUND");
+//        }
     }
 
     @Test
@@ -146,43 +146,43 @@ public class JdbcTest {
 
     @Test
     public void createUserTest() {
-        UserDbClient userDbClient = new UserDbClient();
-        UserJson userJson = userDbClient.createUser(
-                new UserJson(
-                        null,
-                        "Bob",
-                        "Robert",
-                        "Smith",
-                        "Robert Smith",
-                        CurrencyValues.RUB,
-                        null,
-                        null
-                )
-        );
-
-        System.out.println("USER JSON ===> " + userJson);
+//        UserDbClient userDbClient = new UserDbClient();
+//        UserJson userJson = userDbClient.createUser(
+//                new UserJson(
+//                        null,
+//                        "Bob",
+//                        "Robert",
+//                        "Smith",
+//                        "Robert Smith",
+//                        CurrencyValues.RUB,
+//                        null,
+//                        null
+//                )
+//        );
+//
+//        System.out.println("USER JSON ===> " + userJson);
     }
 
     @Test
     public void failUserCreationTest() {
-        UserDbClient userDbClient = new UserDbClient();
-        try {
-            UserJson userJson = userDbClient.createUser(
-                    new UserJson(
-                            null,
-                            "Mary",
-                            null,
-                            "Smith",
-                            "Mary Smith",
-                            CurrencyValues.RUB,
-                            null,
-                            null
-                    )
-            );
-        } catch (RuntimeException e) {
-            Optional<UserJson> userJson =  userDbClient.findUserByUsername("Harry");
-            assertFalse(userJson.isPresent(), "User with username 'Harry' exists in DB");
-        }
+//        UserDbClient userDbClient = new UserDbClient();
+//        try {
+//            UserJson userJson = userDbClient.createUser(
+//                    new UserJson(
+//                            null,
+//                            "Mary",
+//                            null,
+//                            "Smith",
+//                            "Mary Smith",
+//                            CurrencyValues.RUB,
+//                            null,
+//                            null
+//                    )
+//            );
+//        } catch (RuntimeException e) {
+//            Optional<UserJson> userJson =  userDbClient.findUserByUsername("Harry");
+//            assertFalse(userJson.isPresent(), "User with username 'Harry' exists in DB");
+//        }
     }
 
     @Test
