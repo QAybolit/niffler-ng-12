@@ -1,6 +1,5 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.SpendDao;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
@@ -57,7 +56,6 @@ public class SpendDaoJdbc implements SpendDao {
 
     @Override
     public SpendEntity updateSpend(SpendEntity spend) {
-
         try (PreparedStatement ps = connection.prepareStatement(
                 "UPDATE spend SET username = ?, spend_date = ?, currency = ?, amount = ?, description = ?, category_id = ?" +
                         " WHERE id = ?"
@@ -136,6 +134,46 @@ public class SpendDaoJdbc implements SpendDao {
                         """
         )) {
             ps.setString(1, username);
+            ps.execute();
+
+            try (ResultSet rs = ps.getResultSet()) {
+                while (rs.next()) {
+                    SpendEntity se = new SpendEntity();
+                    se.setId(rs.getObject("id", UUID.class));
+                    se.setUsername(rs.getString("username"));
+                    se.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
+                    se.setSpendDate(rs.getDate("spend_date"));
+                    se.setAmount(rs.getDouble("amount"));
+                    se.setDescription(rs.getString("description"));
+
+                    CategoryEntity ce = new CategoryEntity();
+                    ce.setId(rs.getObject("category_id", UUID.class));
+                    ce.setName(rs.getString("name"));
+                    ce.setUsername(rs.getString("category_username"));
+                    ce.setArchived(rs.getBoolean("archived"));
+
+                    se.setCategory(ce);
+
+                    result.add(se);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
+    }
+
+    @Override
+    public List<SpendEntity> findAll() {
+        List<SpendEntity> result = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+                """
+                        SELECT sp.id, sp.username, sp.currency, sp.spend_date, sp.amount, sp.description,
+                        sp.category_id, c.name, c.username AS category_username, c.archived
+                        FROM spend AS sp
+                        JOIN category AS c ON sp.category_id = c.id
+                        """
+        )) {
             ps.execute();
 
             try (ResultSet rs = ps.getResultSet()) {

@@ -1,6 +1,5 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthUserDao;
 import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -84,7 +83,7 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     }
 
     @Override
-    public List<AuthUserEntity> findAllUsers() {
+    public List<AuthUserEntity> findAll() {
         List<AuthUserEntity> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT * FROM \"user\""
