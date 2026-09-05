@@ -21,6 +21,7 @@ public class SpendingTest {
     @User(
             username = "Dina",
             categories = @Category(
+                    name = "Подарки",
                     archived = false
             ),
             spendings = @Spending(

@@ -34,7 +34,7 @@ public class CategoryExtension implements
                         CategoryJson newCategory = spendClient.createCategory(
                                 new CategoryJson(
                                         null,
-                                        randomCategoryName(),
+                                        category.name(),
                                         anno.username(),
                                         category.archived()
                                 )

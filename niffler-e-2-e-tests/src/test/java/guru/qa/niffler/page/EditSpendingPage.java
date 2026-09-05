@@ -17,7 +17,7 @@ public class EditSpendingPage {
 
     public EditSpendingPage setNewSpendingAmount(String amount) {
         amountInput.clear();
-        descriptionInput.val(amount);
+        amountInput.val(amount);
         return this;
     }
 

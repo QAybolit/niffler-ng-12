@@ -15,6 +15,7 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.Date;
 
+import static guru.qa.niffler.jupiter.extension.CategoryExtension.createdCategory;
 import static guru.qa.niffler.jupiter.extension.TestMethodContextExtension.context;
 
 public class SpendingExtension implements BeforeEachCallback, ParameterResolver {
@@ -37,12 +38,7 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
                                 new SpendJson(
                                         null,
                                         new Date(),
-                                        new CategoryJson(
-                                                null,
-                                                spending.category(),
-                                                anno.username(),
-                                                anno.categories()[0].archived()
-                                        ),
+                                        createdCategory(),
                                         spending.currency(),
                                         spending.amount(),
                                         spending.description()[0],
