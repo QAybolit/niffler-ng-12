@@ -2,7 +2,6 @@ package guru.qa.niffler.data.tpl;
 
 import com.atomikos.icatch.jta.UserTransactionImp;
 import jakarta.transaction.SystemException;
-import jakarta.transaction.TransactionManager;
 import jakarta.transaction.UserTransaction;
 
 import java.util.concurrent.atomic.AtomicBoolean;

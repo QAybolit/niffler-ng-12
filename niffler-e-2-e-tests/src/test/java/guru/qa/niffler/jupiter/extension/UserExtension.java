@@ -22,7 +22,7 @@ public class UserExtension implements
         BeforeEachCallback,
         ParameterResolver {
 
-    public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(CategoryExtension.class);
+    public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(UserExtension.class);
     private static final String DEFAULT_PASSWORD = "12345";
 
     private final UserClient userClient = new UserDbClient();

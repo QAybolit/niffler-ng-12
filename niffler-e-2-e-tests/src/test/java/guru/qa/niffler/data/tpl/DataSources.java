@@ -35,11 +35,10 @@ public class DataSources {
 
                     try {
                         InitialContext context = new InitialContext();
-                        context.bind("java:comp/env/jdbc/" + uniqueId,  dsBean);
+                        context.bind("java:comp/env/jdbc/" + uniqueId, dsBean);
                     } catch (NamingException e) {
                         throw new RuntimeException(e);
                     }
-
 
                     return dsBean;
                 }

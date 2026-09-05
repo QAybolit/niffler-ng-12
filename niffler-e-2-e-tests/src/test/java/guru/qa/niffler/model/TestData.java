@@ -1,7 +1,5 @@
 package guru.qa.niffler.model;
 
-import org.apache.kafka.common.protocol.types.Field;
-
 import java.util.ArrayList;
 import java.util.List;
 
