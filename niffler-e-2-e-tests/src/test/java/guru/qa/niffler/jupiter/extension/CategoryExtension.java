@@ -1,6 +1,7 @@
 package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.jupiter.annotation.Category;
+import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.service.SpendClient;
 import guru.qa.niffler.service.SpendDbClient;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import static guru.qa.niffler.jupiter.extension.TestMethodContextExtension.context;
+import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 
 public class CategoryExtension implements
         BeforeEachCallback,
@@ -19,27 +21,29 @@ public class CategoryExtension implements
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(CategoryExtension.class);
 
-  private final SpendClient spendClient = new SpendDbClient();
+    private final SpendClient spendClient = new SpendDbClient();
 
     @Override
     public void beforeEach(ExtensionContext context) {
         AnnotationSupport.findAnnotation(
                 context.getRequiredTestMethod(),
-                Category.class
+                User.class
         ).ifPresent(anno -> {
-                    final CategoryJson created = spendClient.createCategory(
-                            new CategoryJson(
-                                    null,
-                                    anno.name(),
-                                    anno.username(),
-                                    anno.archived()
-                            )
-                    );
-
-                    context.getStore(NAMESPACE).put(
-                            context.getUniqueId(),
-                            created
-                    );
+                    if (anno.categories().length > 0) {
+                        Category category = anno.categories()[0];
+                        CategoryJson newCategory = spendClient.createCategory(
+                                new CategoryJson(
+                                        null,
+                                        category.name(),
+                                        anno.username(),
+                                        category.archived()
+                                )
+                        );
+                        context.getStore(NAMESPACE).put(
+                                context.getUniqueId(),
+                                newCategory
+                        );
+                    }
                 }
         );
     }

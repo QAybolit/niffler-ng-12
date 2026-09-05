@@ -15,6 +15,12 @@ public class EditSpendingPage {
         return this;
     }
 
+    public EditSpendingPage setNewSpendingAmount(String amount) {
+        amountInput.clear();
+        amountInput.val(amount);
+        return this;
+    }
+
     public MainPage save() {
         saveBtn.click();
         return new MainPage();

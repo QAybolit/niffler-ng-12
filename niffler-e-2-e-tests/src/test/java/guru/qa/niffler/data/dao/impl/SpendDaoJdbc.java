@@ -1,6 +1,5 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.SpendDao;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
@@ -57,7 +56,6 @@ public class SpendDaoJdbc implements SpendDao {
 
     @Override
     public SpendEntity updateSpend(SpendEntity spend) {
-
         try (PreparedStatement ps = connection.prepareStatement(
                 "UPDATE spend SET username = ?, spend_date = ?, currency = ?, amount = ?, description = ?, category_id = ?" +
                         " WHERE id = ?"
