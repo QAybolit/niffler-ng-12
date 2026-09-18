@@ -26,8 +26,12 @@ public class SpendDbClient implements SpendClient {
         return transaction(connection -> {
                     SpendEntity spendEntity = SpendEntity.fromJson(spend);
                     if (spendEntity.getCategory().getId() == null) {
-                        CategoryEntity categoryEntity = new CategoryDaoJdbc(connection)
-                                .create(spendEntity.getCategory());
+                        CategoryDao categoryDao = new CategoryDaoJdbc(connection);
+                        CategoryEntity categoryEntity = categoryDao
+                                .findCategoryByUsernameAndCategoryName(
+                                        spendEntity.getUsername(),
+                                        spendEntity.getCategory().getName())
+                                .orElseGet(() -> categoryDao.create(spendEntity.getCategory()));
                         spendEntity.setCategory(categoryEntity);
                     }
                     return SpendJson.fromEntity(
@@ -44,8 +48,12 @@ public class SpendDbClient implements SpendClient {
         return transaction(connection -> {
                     SpendEntity spendEntity = SpendEntity.fromJson(spend);
                     if (spendEntity.getCategory().getId() == null) {
-                        CategoryEntity categoryEntity = new CategoryDaoJdbc(connection)
-                                .create(spendEntity.getCategory());
+                        CategoryDao categoryDao = new CategoryDaoJdbc(connection);
+                        CategoryEntity categoryEntity = categoryDao
+                                .findCategoryByUsernameAndCategoryName(
+                                        spendEntity.getUsername(),
+                                        spendEntity.getCategory().getName())
+                                .orElseGet(() -> categoryDao.create(spendEntity.getCategory()));
                         spendEntity.setCategory(categoryEntity);
                     }
                     return SpendJson.fromEntity(new SpendDaoJdbc(connection)

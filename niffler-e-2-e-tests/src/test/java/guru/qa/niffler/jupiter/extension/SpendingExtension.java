@@ -1,12 +1,11 @@
 package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.jupiter.annotation.Spending;
+import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
-import guru.qa.niffler.service.SpendApiClient;
 import guru.qa.niffler.service.SpendClient;
 import guru.qa.niffler.service.SpendDbClient;
-import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -16,37 +15,55 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.Date;
 
+import static guru.qa.niffler.jupiter.extension.CategoryExtension.createdCategory;
 import static guru.qa.niffler.jupiter.extension.TestMethodContextExtension.context;
 
 public class SpendingExtension implements BeforeEachCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendingExtension.class);
 
-  private final SpendClient spendClient = new SpendDbClient();
+    private final SpendClient spendClient = new SpendDbClient();
 
     @Override
     public void beforeEach(ExtensionContext context) {
         AnnotationSupport.findAnnotation(
                 context.getRequiredTestMethod(),
-                Spending.class
+                User.class
         ).ifPresent(
                 anno -> {
-                    final SpendJson created = spendClient.createSpend(
-                            new SpendJson(
-                                    null,
-                                    new Date(),
-                                    new CategoryJson(
-                                            null,
-                                            anno.category(),
-                                            anno.username(),
-                                            false
-                                    ),
-                                    anno.currency(),
-                                    anno.amount(),
-                                    anno.description()[0],
-                                    anno.username()
-                            )
-                    );
+                    SpendJson created = null;
+                    if (anno.spendings().length > 0 && anno.categories().length > 0) {
+                        Spending spending = anno.spendings()[0];
+                        created = spendClient.createSpend(
+                                new SpendJson(
+                                        null,
+                                        new Date(),
+                                        createdCategory(),
+                                        spending.currency(),
+                                        spending.amount(),
+                                        spending.description()[0],
+                                        anno.username()
+                                )
+                        );
+                    } else if (anno.spendings().length > 0) {
+                        Spending spending = anno.spendings()[0];
+                        created = spendClient.createSpend(
+                                new SpendJson(
+                                        null,
+                                        new Date(),
+                                        new CategoryJson(
+                                                null,
+                                                spending.category(),
+                                                anno.username(),
+                                                false
+                                        ),
+                                        spending.currency(),
+                                        spending.amount(),
+                                        spending.description()[0],
+                                        anno.username()
+                                )
+                        );
+                    }
                     context.getStore(NAMESPACE).put(
                             context.getUniqueId(),
                             created
