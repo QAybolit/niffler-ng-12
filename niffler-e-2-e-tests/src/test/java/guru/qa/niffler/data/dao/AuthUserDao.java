@@ -12,7 +12,7 @@ public interface AuthUserDao {
 
     Optional<AuthUserEntity> findUserByById(UUID id);
 
-    List<AuthUserEntity> findAllUsers();
+    List<AuthUserEntity> findAll();
 
     void deleteUserById(UUID id);
 }

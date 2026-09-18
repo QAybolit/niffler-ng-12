@@ -83,7 +83,7 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     }
 
     @Override
-    public List<AuthUserEntity> findAllUsers() {
+    public List<AuthUserEntity> findAll() {
         List<AuthUserEntity> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT * FROM \"user\""
